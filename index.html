@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GuP Digital: Deutscher Bund</title>
+    <style>
+        /* MODERNE FARBPALETTE & VARIABLEN */
+        :root {
+            --bg-body: #f0f4f8;
+            --bg-card: #ffffff;
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-gradient: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            --text-main: #2d3436;
+            --text-light: #ffffff;
+            --shadow: 0 10px 20px rgba(0,0,0,0.1);
+            --border-radius: 15px;
+            --transition: all 0.3s ease;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif; /* Moderne Schriftart (via Google Fonts unten geladen) */
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* HEADER MIT GRADIENT */
+        header {
+            background: var(--primary-gradient);
+            color: var(--text-light);
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+            border-bottom-left-radius: var(--border-radius);
+            border-bottom-right-radius: var(--border-radius);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        header h1 { margin: 0; font-size: 1.5rem; font-weight: 600; }
+
+        #timer-box {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            backdrop-filter: blur(5px); /* Moderner Glassmorphismus Effekt */
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* MODERNE NAVIGATION */
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            overflow-x: auto; /* Scrollbar auf kleinen Handys */
+        }
+
+        nav button {
+            padding: 12px 20px;
+            cursor: pointer;
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        nav button:hover {
+            transform: translateY(-3px);
+            background: var(--accent-gradient);
+            color: var(--text-main);
+        }
+
+        nav button.active-nav {
+            background: var(--primary-gradient);
+            color: var(--text-light);
+        }
+
+        /* STATIONEN ALS KARTEN */
+        .station {
+            display: none;
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .station.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h2 {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        p { line-height: 1.7; color: #636e72; }
+
+        /* MODERNE AUFGABEN-BOXEN */
+        .task {
+            background: #f9fbfd;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            border: 1px solid #e1e8ed;
+            transition: var(--transition);
+        }
+
+        .task:hover {
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.1);
+            border-color: #764ba2;
+        }
+
+        .task b { color: var(--text-main); display: block; margin-bottom: 10px; }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .solution-hint {
+            background: var(--accent-gradient);
+            color: #2d3436;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            font-weight: 700;
+            text-align: center;
+            margin-top: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        /* MODERNER SPERRBILDSCHIRM (FREEZE EFFECT) */
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(45, 52, 54, 0.8);
+            backdrop-filter: blur(15px); /* Starker Blur-Effekt */
+            color: var(--text-light);
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #overlay h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-lock {
+            margin-top: 40px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .admin-lock:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.05);
+        }
+
+        /* Lade Google Font */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+    </style>
+</head>
+<body>
+
+<div id="overlay">
+    <h1>STATION WECHSELN! 🛑</h1>
+    <p>Die Zeit für diese Station ist um.<br>Bitte rückt zur nächsten Station vor und wartet dort.</p>
+    <div class="admin-lock" onclick="unlockSite()">🔒 Lehrer-Freischaltung (Code nötig)</div>
+</div>
+
+<header>
+    <h1>GuP Digital</h1>
+    <div id="timer-box">⏳ <span id="timer">10:00</span></div>
+</header>
+
+<nav id="main-nav">
+    <button onclick="show(1)" class="active-nav">Gründung</button>
+    <button onclick="show(2)">Flickenteppich</button>
+    <button onclick="show(3)">Bürger vs Fürsten</button>
+    <button onclick="show(4)">Preußen vs Österreich</button>
+</nav>
+
+<main style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+
+    <div id="s1" class="station active">
+        <h2>Station 1: Die Gründung (1815)</h2>
+        <p>Nach dem Sieg über Napoleon trafen sich die mächtigsten Fürsten Europas beim <b>Wiener Kongress</b>. Ihr Ziel war die "Restauration" – die Wiederherstellung der alten Machtverhältnisse vor der Französischen Revolution.</p>
+        
+        <div class="task">
+            <b>Frage 1 (Einfach):</b> Wer entschied beim Wiener Kongress über die Zukunft Deutschlands: Das Volk oder die Fürsten?
+            <input type="text" placeholder="Deine Antwort...">
+        </div>
+        
+        <div class="task">
+            <b>Frage 2 (Mittel):</b> Entstand 1815 ein einheitliches Deutschland mit einer starken Regierung, oder blieb es ein loser Bund?
+            <input type="text" placeholder="Deine Antwort...">
+        </div>
+        
+        <div class="solution-hint">📍 Fertig? Vergleiche bei: Susanna & Meryem!</div>
+    </div>
+
+    <div id="s2" class="station">
+        <h2>Station 2: Der Flickenteppich</h2>
+        <p>Der Deutsche Bund war kein Nationalstaat, sondern ein Zusammenschluss von 39 souveränen Einzelstaaten. Jeder Fürst kochte sein eigenes Süppchen.</p>
+        
+        <div class="task">
+            <b>Frage 1 (Einfach):</b> Nenne ein praktisches Problem (z.B. für Händler), das durch die vielen kleinen Grenzen entstand.
+            <input type="text" placeholder="Deine Antwort...">
+        </div>
+        
+        <div class="task">
+            <b>Frage 2 (Leitfrage):</b> Warum ist es schwer, "Freiheit für alle" umzusetzen, wenn es keine zentrale Regierung gibt, die Gesetze für alle macht?
+            <input type="text" placeholder="Deine Antwort...">
+        </div>
+        
+        <div class="solution-hint">📍 Fertig? Vergleiche bei: Umut & Angelos!</div>
+    </div>
+
+    <div id="s3" class="station">
+        <h2>Station 3: Bürger vs. Fürsten</h2>
+        <p>Viele Bürger, besonders Studenten, forderten Einheit und Freiheit. Die Fürsten antworteten mit Härte. Die <b>Karlsbader Beschlüsse (1819)</b> waren das Werkzeug der Unterdrückung.</p>
+        
+        <div class="task">
+            <b>Frage 1 (Einfach):</b> Wie kontrollierten die Fürsten die Zeitungen und Bücher? (Stichwort: Zensur)
+            <input type="text" placeholder="Deine Antwort...">
+        </div>
+        
+        <div class="task">
+            <b>Frage 2 (Mittel):</b> Warum hatten die Fürsten so große Angst vor Universitäten und freien Reden?
+            <input type="text" placeholder="Deine Antwort...">
+        </div>
+        
+        <div class="solution-hint">📍 Fertig? Vergleiche bei: Dello & Yasar!</div>
+    </div>
+
+    <div id="s4" class="station">
+        <h2>Station 4: Preußen vs. Österreich</h2>
+        <p>Im Deutschen Bund gab es zwei Supermächte: Das Königreich Preußen und das Kaisertum Österreich. Dieser Machtkampf wird <b>Deutscher Dualismus</b> genannt.</p>
+        
+        <div class="task">
+            <b>Frage 1 (Einfach):</b> Welcher der beiden Staaten war konservativer und wollte Reformen am stärksten verhindern?
+            <input type="text" placeholder="Deine Antwort...">
+        </div>
+        
+        <div class="task">
+            <b>Frage 2 (Leitfrage):</b> Warum verhinderte der Streit dieser beiden Riesen oft, dass sich im Deutschen Bund politisch etwas veränderte?
+            <input type="text" placeholder="Deine Antwort...">
+        </div>
+        
+        <div class="solution-hint">📍 Fertig? Vergleiche bei: Eda & Lajana!</div>
+    </div>
+
+</main>
+
+<script>
+    // Timer & Lock Status
+    let time = 600; // 10 Minuten in Sekunden
+    let isLocked = false;
+    let timerInterval;
+
+    // Admin Passwort
+    const ADMIN_CODE = "1815";
+
+    // Timer Funktion
+    function updateTimer() {
+        if(isLocked) return;
+
+        let minutes = Math.floor(time / 60);
+        let seconds = time % 60;
+
+        document.getElementById('timer').innerHTML = minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+
+        if (time <= 0) {
+            // Zeit um: Sperren!
+            lockSite();
+        } else {
+            time--;
+        }
+    }
+
+    // Seite sperren
+    function lockSite() {
+        isLocked = true;
+        document.getElementById('overlay').style.display = 'flex';
+        // Timer rot färben
+        document.getElementById('timer-box').style.background = '#e74c3c';
+    }
+
+    // Lehrer-Freischaltung
+    function unlockSite() {
+        let code = prompt("Lehrer-Code zur Freischaltung eingeben:");
+        if(code === ADMIN_CODE) {
+            isLocked = false;
+            time = 600; // Reset auf 10 Min
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('timer-box').style.background = 'rgba(255,255,255,0.2)';
+            // Automatisch zur nächsten Station springen (optional)
+        } else if (code !== null) {
+            alert("Falscher Code, Herr Kollege!");
+        }
+    }
+
+    // Station wechseln
+    function show(stationNumber) {
+        if(isLocked) return; // Keine Wechsel im gesperrten Zustand
+
+        // Alle Stationen ausblenden
+        document.querySelectorAll('.station').forEach(s => s.classList.remove('active'));
+        // Alle Nav-Buttons deaktivieren
+        document.querySelectorAll('#main-nav button').forEach(b => b.classList.remove('active-nav'));
+
+        // Gewählte Station einblenden
+        document.getElementById('s' + stationNumber).classList.add('active');
+        // Gewählten Button aktivieren
+        document.querySelectorAll('#main-nav button')[stationNumber-1].classList.add('active-nav');
+        
+        // Nach oben scrollen
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    // Timer starten
+    timerInterval = setInterval(updateTimer, 1000);
+
+</script>
+
+</body>
+</html>
