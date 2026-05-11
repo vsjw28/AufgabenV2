@@ -3,354 +3,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GuP Adventure: Deutscher Bund</title>
-    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <title>GuP Adventure Pro | 2026 Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --apple-blue: #007AFF;
-            --apple-red: #FF3B30;
-            --apple-gray: #8E8E93;
-            --glass: rgba(255, 255, 255, 0.7);
-            --bg: #f2f2f7;
+            --p-blue: #007AFF; --p-green: #34C759; --p-red: #FF3B30; --p-orange: #FF9500;
+            --glass: rgba(255, 255, 255, 0.8);
+            --card-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
 
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 
         body {
-            font-family: 'SF Pro Display', 'Inter', -apple-system, sans-serif;
-            background-color: var(--bg);
-            margin: 0;
-            color: #1c1c1e;
-            overflow-x: hidden;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0; padding: 0; color: #1c1c1e;
+            min-height: 100vh; overflow-x: hidden;
+            background: #e5e7eb;
+            transition: all 1s ease;
         }
 
-        /* Hintergrund-Animation je nach Station */
-        body.theme-1 { background: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%); }
-        body.theme-2 { background: linear-gradient(120deg, #f6d365 0%, #fda085 100%); }
-        body.theme-3 { background: linear-gradient(120deg, #ff9a9e 0%, #fecfef 100%); }
-        body.theme-4 { background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%); }
+        /* Animierter Background Mesh */
+        .mesh-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; filter: blur(80px); opacity: 0.6;
+        }
+        .blob {
+            position: absolute; width: 500px; height: 500px; border-radius: 50%;
+            animation: move 20s infinite alternate;
+        }
+        @keyframes move {
+            from { transform: translate(-10%, -10%); }
+            to { transform: translate(20%, 20%); }
+        }
+
+        /* Themes */
+        .theme-1 .b1 { background: #60a5fa; top: -100px; left: -100px; }
+        .theme-1 .b2 { background: #a78bfa; bottom: -100px; right: -100px; }
+        .theme-2 .b1 { background: #fbbf24; top: -100px; left: -100px; }
+        .theme-2 .b2 { background: #f87171; bottom: -100px; right: -100px; }
+        .theme-3 .b1 { background: #f87171; top: -100px; left: -100px; }
+        .theme-3 .b2 { background: #db2777; bottom: -100px; right: -100px; }
+        .theme-4 .b1 { background: #34d399; top: -100px; left: -100px; }
+        .theme-4 .b2 { background: #60a5fa; bottom: -100px; right: -100px; }
 
         header {
-            position: sticky;
-            top: 0;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            background: var(--glass);
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 1000;
-            border-bottom: 0.5px solid rgba(0,0,0,0.1);
+            position: sticky; top: 0; z-index: 1000;
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            background: rgba(255,255,255,0.7); padding: 15px 25px;
+            display: flex; flex-direction: column; gap: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
         }
 
-        .timer-pill {
-            background: var(--apple-red);
-            color: white;
-            padding: 6px 15px;
-            border-radius: 20px;
-            font-weight: 700;
-            font-variant-numeric: tabular-nums;
-            box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
-        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .logo { font-weight: 800; font-size: 1.4rem; background: linear-gradient(90deg, #007AFF, #A78BFA); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        nav {
-            display: flex;
-            gap: 8px;
-            padding: 15px;
-            overflow-x: auto;
-            background: rgba(255,255,255,0.4);
-        }
+        .progress-bar-bg { width: 100%; height: 6px; background: rgba(0,0,0,0.05); border-radius: 10px; overflow: hidden; }
+        .progress-fill { width: 25%; height: 100%; background: var(--p-blue); transition: width 0.5s ease; }
 
-        nav button {
-            border: none;
-            padding: 10px 18px;
-            border-radius: 12px;
-            font-weight: 600;
-            background: var(--glass);
-            color: var(--apple-gray);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            white-space: nowrap;
-        }
+        .timer-pill { background: var(--p-red); color: white; padding: 6px 14px; border-radius: 50px; font-weight: 800; box-shadow: 0 4px 12px rgba(255,59,48,0.2); }
 
-        nav button.active {
-            background: var(--apple-blue);
-            color: white;
-            transform: scale(1.05);
-        }
-
-        nav button.locked {
-            opacity: 0.4;
-            filter: grayscale(1);
-            cursor: not-allowed;
-        }
-
-        .container {
-            padding: 20px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
+        /* Container & Cards */
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+        
         .card {
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            margin-bottom: 80px;
-            border: 1px solid rgba(255,255,255,0.5);
+            background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 35px; padding: 35px; box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255,255,255,0.4);
+            animation: cardEnter 0.6s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        h2 { font-size: 1.8rem; margin-top: 0; color: #000; }
+        @keyframes cardEnter { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
-        .question-box {
-            background: rgba(255,255,255,0.5);
-            border-radius: 18px;
-            padding: 15px;
-            margin: 15px 0;
-            border: 1px solid rgba(0,0,0,0.05);
+        h2 { font-size: 2.2rem; font-weight: 800; margin: 0 0 20px 0; letter-spacing: -1.5px; line-height: 1; }
+
+        .q-box {
+            background: rgba(255,255,255,0.5); border-radius: 25px; padding: 20px;
+            margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.8);
+            transition: transform 0.2s;
+        }
+        .q-box:focus-within { transform: scale(1.02); border-color: var(--p-blue); }
+        .q-box b { color: var(--p-blue); display: block; margin-bottom: 8px; font-size: 1.1rem; }
+
+        input, textarea {
+            width: 100%; border: 1px solid rgba(0,0,0,0.05); padding: 15px;
+            border-radius: 15px; font-size: 16px; font-family: inherit;
+            background: white; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
 
-        .question-box b { color: var(--apple-blue); display: block; margin-bottom: 8px; }
-
-        input[type="text"], textarea {
-            width: 100%;
-            border: none;
-            padding: 12px;
-            border-radius: 12px;
-            background: white;
-            font-size: 16px; /* Verhindert Auto-Zoom bei Safari */
-            font-family: inherit;
+        /* Action Button */
+        .action-btn {
+            width: 100%; padding: 20px; border-radius: 25px; border: none;
+            background: #d1d1d6; color: white; font-weight: 800; font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        .action-btn.ready { background: var(--p-blue); cursor: pointer; transform: scale(1.02); box-shadow: 0 15px 30px rgba(0,122,255,0.3); }
+        .action-btn.ready:active { transform: scale(0.95); }
 
-        /* Spezial-Design für den Mini-Staat */
-        .creative-box {
-            background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
-            border: 2px dashed var(--apple-blue);
-            padding: 20px;
-            border-radius: 20px;
-            text-align: center;
-        }
+        /* Review Styles */
+        .review-text { display: none; padding: 15px; background: rgba(52, 199, 89, 0.1); border-radius: 15px; border-left: 5px solid var(--p-green); color: #1a472a; font-weight: 600; }
+        .is-reviewed .input-field { display: none; }
+        .is-reviewed .review-text { display: block; animation: slideIn 0.4s ease; }
+        .is-reviewed .badge { display: flex; align-items: center; justify-content: center; background: var(--p-green); color: white; border-radius: 20px; padding: 15px; margin-top: 20px; font-weight: 800; animation: pop 0.5s ease; }
 
-        .flag-canvas {
-            width: 100px;
-            height: 60px;
-            background: #eee;
-            margin: 10px auto;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            color: #999;
-        }
+        @keyframes pop { 0% { transform: scale(0.8); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-        #overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            color: white;
-            z-index: 2000;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
+        /* Overlay */
+        #lock-screen {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+            z-index: 2000; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center;
         }
-
-        .unlock-btn {
-            margin-top: 30px;
-            padding: 12px 24px;
-            background: var(--apple-blue);
-            border-radius: 15px;
-            border: none;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .hint {
-            background: #e1f5fe;
-            padding: 10px;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            color: #0288d1;
-            text-align: center;
-            margin-top: 20px;
-        }
+        .admin-btn { margin-top: 30px; padding: 15px 40px; background: var(--p-blue); border-radius: 50px; border: none; color: white; font-weight: 800; cursor: pointer; font-size: 1rem; }
 
     </style>
 </head>
 <body class="theme-1">
 
-<div id="overlay">
-    <h1 style="font-size: 3rem;">STOPP 🛑</h1>
-    <p style="font-size: 1.2rem; padding: 0 20px;">Zeit abgelaufen! Wechselt die Station.<br>Euer Lehrer schaltet die nächste Stufe gleich frei.</p>
-    <button class="unlock-btn" onclick="adminUnlock()">🔒 Admin Freischaltung</button>
-</div>
+    <div class="mesh-bg">
+        <div class="blob b1"></div>
+        <div class="blob b2"></div>
+    </div>
 
-<header>
-    <span style="font-weight: 700; letter-spacing: -0.5px;">GuP EXPLORER</span>
-    <div class="timer-pill" id="timer-display">10:00</div>
-</header>
+    <div id="lock-screen">
+        <h1 style="font-size: 4rem; margin: 0;">STATION WECHSELN!</h1>
+        <p style="font-size: 1.5rem; opacity: 0.7;">Alle iPads ablegen. Der Lehrer schaltet gleich frei.</p>
+        <button class="admin-btn" onclick="nextStage()">🔒 Nächste Station freischalten</button>
+    </div>
 
-<nav id="navbar">
-    <button id="btn1" class="active">1. Gründung</button>
-    <button id="btn2" class="locked">2. Flickenteppich</button>
-    <button id="btn3" class="locked">3. Bürger vs Fürsten</button>
-    <button id="btn4" class="locked">4. Preußen vs Östr.</button>
-</nav>
+    <header>
+        <div class="header-top">
+            <div class="logo">GuP ADVENTURE</div>
+            <div class="timer-pill" id="timer-text">10:00</div>
+        </div>
+        <div class="progress-bar-bg">
+            <div id="p-fill" class="progress-fill"></div>
+        </div>
+    </header>
 
-<div class="container">
-    <div id="s1" class="station active-card">
-        <div class="card">
-            <h2>Die Gründung (1815)</h2>
-            <div class="question-box">
-                <b>1. Warum wurde der deutsche Bund nach 1815 gegründet?</b>
-                <input type="text" placeholder="Deine Antwort...">
+    <div class="container">
+        <div id="s1" class="station-content">
+            <div class="card">
+                <h2>Die Gründung</h2>
+                <div class="q-box">
+                    <b>1. Warum wurde der deutsche Bund nach 1815 gegründet?</b>
+                    <input type="text" class="input-field" oninput="validate(1)">
+                    <div class="review-text"></div>
+                </div>
+                <div class="q-box">
+                    <b>2. Welches Ziel hatte der deutsche Bund?</b>
+                    <input type="text" class="input-field" oninput="validate(1)">
+                    <div class="review-text"></div>
+                </div>
+                <div class="q-box">
+                    <b>3. Warum wurde der deutsche Bund 1866 aufgelöst?</b>
+                    <textarea class="input-field" oninput="validate(1)"></textarea>
+                    <div class="review-text"></div>
+                </div>
+                <button id="btn1" class="action-btn" onclick="submit(1)">Check & Weiter ⚡️</button>
+                <div class="badge">✨ Fertig! Abgleichen bei Susanna & Meryem.</div>
             </div>
-            <div class="question-box">
-                <b>2. Welches Ziel hatte der deutsche Bund?</b>
-                <input type="text" placeholder="Stabilität? Macht?">
-                <input type="text" style="margin-top:5px;" placeholder="Noch ein Ziel...">
+        </div>
+
+        <div id="s2" class="station-content" style="display:none">
+            <div class="card">
+                <h2>Flickenteppich</h2>
+                <div class="q-box">
+                    <b>1. Warum nannte man Deutschland damals „Flickenteppich“?</b>
+                    <input type="text" class="input-field" oninput="validate(2)">
+                    <div class="review-text"></div>
+                </div>
+                <div class="q-box">
+                    <b>2. Nachteile für die Menschen?</b>
+                    <input type="text" class="input-field" oninput="validate(2)">
+                    <div class="review-text"></div>
+                </div>
+                <div class="q-box" style="border: 2px dashed var(--p-orange)">
+                    <b style="color:var(--p-orange)">🎨 Mein Mini-Staat</b>
+                    <input type="text" placeholder="Name, Flagge, Regel..." class="input-field" oninput="validate(2)">
+                    <div class="review-text"></div>
+                </div>
+                <button id="btn2" class="action-btn" onclick="submit(2)">Station abschließen ⚡️</button>
+                <div class="badge">✨ Top! Check das bei Umut & Angelos.</div>
             </div>
-            <div class="question-box">
-                <b>3. Warum wurde der deutsche Bund 1866 aufgelöst?</b>
-                <textarea placeholder="Was geschah zwischen Preußen und Österreich?"></textarea>
+        </div>
+
+        <div id="s3" class="station-content" style="display:none">
+            <div class="card">
+                <h2>Bürger vs Fürsten</h2>
+                <div class="q-box">
+                    <b>1. Wünsche der Bürger?</b>
+                    <input type="text" class="input-field" oninput="validate(3)">
+                    <div class="review-text"></div>
+                </div>
+                <div class="q-box">
+                    <b>2. Warum Angst vor Revolution?</b>
+                    <input type="text" class="input-field" oninput="validate(3)">
+                    <div class="review-text"></div>
+                </div>
+                <div class="q-box">
+                    <b>3. Märzrevolution 1848?</b>
+                    <textarea class="input-field" oninput="validate(3)"></textarea>
+                    <div class="review-text"></div>
+                </div>
+                <button id="btn3" class="action-btn" onclick="submit(3)">Review ⚡️</button>
+                <div class="badge">✨ Sauber! Vergleiche bei Dello & Yasar.</div>
             </div>
-            <div class="hint">📍 Lösungshilfe bei: Susanna & Meryem</div>
+        </div>
+
+        <div id="s4" class="station-content" style="display:none">
+            <div class="card">
+                <h2>Machtkampf</h2>
+                <div class="q-box">
+                    <b>1. Preußens Lösung?</b>
+                    <input type="text" class="input-field" oninput="validate(4)">
+                    <div class="review-text"></div>
+                </div>
+                <div class="q-box">
+                    <b>2. „Blut und Eisen“ Bedeutung?</b>
+                    <input type="text" class="input-field" oninput="validate(4)">
+                    <div class="review-text"></div>
+                </div>
+                <div class="q-box">
+                    <b>3. Ereignis 1866?</b>
+                    <input type="text" class="input-field" oninput="validate(4)">
+                    <div class="review-text"></div>
+                </div>
+                <button id="btn4" class="action-btn" onclick="submit(4)">Finale 🏁</button>
+                <div class="badge">✨ Legendär! Letzter Check bei Eda & Lajana.</div>
+            </div>
         </div>
     </div>
 
-    <div id="s2" class="station" style="display:none;">
-        <div class="card">
-            <h2>Der Flickenteppich</h2>
-            <div class="question-box">
-                <b>1. Warum nannte man Deutschland damals „Flickenteppich“?</b>
-                <input type="text" placeholder="Erkläre mit eigenen Worten...">
-            </div>
-            <div class="question-box">
-                <b>2. Welche Nachteile hatte dies für die Menschen?</b>
-                <input type="text" placeholder="Denk an Handel und Reisen...">
-            </div>
-            <div class="creative-box">
-                <b style="color:var(--apple-blue)">3. Kreativ-Projekt: Dein Mini-Staat</b>
-                <p style="font-size: 0.8rem;">Zeichne auf dein Blatt und fülle hier aus:</p>
-                <input type="text" placeholder="Name des Staates" style="margin-bottom:10px;">
-                <div class="flag-canvas">Flagge (auf Blatt!)</div>
-                <input type="text" placeholder="Deine wichtigste Regel">
-            </div>
-            <div class="hint">📍 Lösungshilfe bei: Umut & Angelos</div>
-        </div>
-    </div>
+    <script>
+        let stage = 1;
+        let time = 600;
+        let locked = false;
 
-    <div id="s3" class="station" style="display:none;">
-        <div class="card">
-            <h2>Bürger vs. Fürsten</h2>
-            <div class="question-box">
-                <b>1. Was sollten die Bürger im deutschen Bund erreichen?</b>
-                <input type="text" placeholder="Was waren ihre Wünsche?">
-            </div>
-            <div class="question-box">
-                <b>2. Warum hatten die Fürsten Angst vor einer Revolution?</b>
-                <input type="text" placeholder="Was passierte früher in Frankreich?">
-            </div>
-            <div class="question-box">
-                <b>3. Was geschah in der Märzrevolution von 1848?</b>
-                <textarea placeholder="Kämpfe? Forderungen? Erfolg?"></textarea>
-            </div>
-            <div class="hint">📍 Lösungshilfe bei: Dello & Yasar</div>
-        </div>
-    </div>
-
-    <div id="s4" class="station" style="display:none;">
-        <div class="card">
-            <h2>Preußen vs. Österreich</h2>
-            <div class="question-box">
-                <b>1. Welche Lösung für die Einheit wollte Preußen durchsetzen?</b>
-                <input type="text" placeholder="Kleindeutsch oder Großdeutsch?">
-            </div>
-            <div class="question-box">
-                <b>2. Was meinte Bismarck mit „Blut und Eisen“?</b>
-                <input type="text" placeholder="Wie wollte er Ziele erreichen?">
-            </div>
-            <div class="question-box">
-                <b>3. Welches Ereignis 1866 entschied den Machtkampf?</b>
-                <input type="text" placeholder="Name der Schlacht?">
-            </div>
-            <div class="hint">📍 Lösungshilfe bei: Eda & Lajana</div>
-        </div>
-    </div>
-</div>
-
-<script>
-    let currentStation = 1;
-    let timeLeft = 600;
-    let isLocked = false;
-    const ADMIN_CODE = "1815";
-
-    function updateTimer() {
-        if(isLocked) return;
-        let mins = Math.floor(timeLeft / 60);
-        let secs = timeLeft % 60;
-        document.getElementById('timer-display').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        
-        if(timeLeft <= 0) {
-            lockApp();
-        } else {
-            timeLeft--;
+        function validate(s) {
+            const inputs = document.querySelectorAll(`#s${s} .input-field`);
+            const btn = document.getElementById(`btn${s}`);
+            let ok = Array.from(inputs).every(i => i.value.trim().length > 2);
+            if(ok) btn.classList.add('ready'); else btn.classList.remove('ready');
         }
-    }
 
-    function lockApp() {
-        isLocked = true;
-        document.getElementById('overlay').style.display = 'flex';
-    }
+        function submit(s) {
+            if(!document.getElementById(`btn${s}`).classList.contains('ready')) return;
+            const container = document.getElementById(`s${s}`);
+            const fields = container.querySelectorAll('.input-field');
+            const reviews = container.querySelectorAll('.review-text');
+            fields.forEach((f, i) => reviews[i].innerText = "Bestätigt: " + f.value);
+            container.classList.add('is-reviewed');
+            document.getElementById(`btn${s}`).style.display = 'none';
+        }
 
-    function adminUnlock() {
-        let code = prompt("Admin-Code eingeben:");
-        if(code === ADMIN_CODE) {
-            if(currentStation < 4) {
-                currentStation++;
-                unlockStation(currentStation);
-                document.getElementById('overlay').style.display = 'none';
-                isLocked = false;
-                timeLeft = 600; // Reset für neue Station
-            } else {
-                alert("Alle Stationen beendet! Zeit für Kahoot!");
-                document.getElementById('overlay').style.display = 'none';
+        function timer() {
+            if(locked) return;
+            let m = Math.floor(time/60), s = time%60;
+            document.getElementById('timer-text').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(time <= 0) { locked = true; document.getElementById('lock-screen').style.display = 'flex'; }
+            else time--;
+        }
+
+        function nextStage() {
+            let pw = prompt("Admin Code:");
+            if(pw === "1815") {
+                if(stage < 4) {
+                    stage++;
+                    document.getElementById('lock-screen').style.display = 'none';
+                    document.querySelectorAll('.station-content').forEach(s => s.style.display = 'none');
+                    document.getElementById('s' + stage).style.display = 'block';
+                    document.body.className = 'theme-' + stage;
+                    document.getElementById('p-fill').style.width = (stage * 25) + '%';
+                    time = 600; locked = false;
+                } else { alert("Ende der Stationsarbeit! Los geht's zum Kahoot!"); }
             }
-        } else {
-            alert("Falscher Code!");
         }
-    }
 
-    function unlockStation(n) {
-        // Nav Buttons updaten
-        const btn = document.getElementById('btn' + n);
-        btn.classList.remove('locked');
-        btn.classList.add('active');
-        
-        // Alle Stationen ausblenden
-        document.querySelectorAll('.station').forEach(s => s.style.display = 'none');
-        // Aktuelle einblenden
-        document.getElementById('s' + n).style.display = 'block';
-        
-        // Body Theme ändern
-        document.body.className = 'theme-' + n;
-        
-        // Vorherige Buttons "erledigt" markieren (optional)
-        document.getElementById('btn' + (n-1)).classList.remove('active');
-        document.getElementById('btn' + (n-1)).style.background = "#27ae60";
-        document.getElementById('btn' + (n-1)).style.color = "white";
-    }
-
-    setInterval(updateTimer, 1000);
-</script>
-
+        setInterval(timer, 1000);
+    </script>
 </body>
 </html>
